@@ -46,7 +46,7 @@ public protocol CocoaMQTTDelegate : class {
 */
 public protocol CocoaMQTTSSLDelegate : class {
     
-    func mqtt(mqtt: CocoaMQTT, shouldTrustServer serverTrust: ServeTrust) -> Bool
+    func mqtt(mqtt: CocoaMQTT, shouldTrust serverTrust: SecTrust!) -> Bool
 }
 
 /**
@@ -322,7 +322,8 @@ public class CocoaMQTT: NSObject, CocoaMQTTClient, GCDAsyncSocketDelegate, Cocoa
             NSLog("CocoaMQTT: didReceiveTrust")
         #endif
         if let sslDel = self.sslDelegate {
-            completionHandler(self.sslDelegate.shouldTrustServer(trust))
+            let shouldTrust = sslDel.mqtt(self, shouldTrust: trust)
+            completionHandler(shouldTrust)
             return
         }
         completionHandler(true)
@@ -479,7 +480,8 @@ public class CocoaMQTT: NSObject, CocoaMQTTClient, GCDAsyncSocketDelegate, Cocoa
     }
 
     func _nextMessageId() -> UInt16 {
-        let id = self.gmid++
+        self.gmid += 1
+        let id = self.gmid
         if id >= UInt16.max { gmid = 1 }
         return id
     }
