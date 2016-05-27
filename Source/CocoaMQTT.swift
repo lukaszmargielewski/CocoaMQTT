@@ -41,6 +41,14 @@ public protocol CocoaMQTTDelegate : class {
 
 }
 
+/*
+* MQTT SSL Certificate Validation Delegate
+*/
+public protocol CocoaMQTTSSLDelegate : class {
+    
+    func mqtt(mqtt: CocoaMQTT, shouldTrustServer serverTrust: ServeTrust) -> Bool
+}
+
 /**
  * Blueprint of the MQTT client
  */
@@ -178,6 +186,10 @@ public class CocoaMQTT: NSObject, CocoaMQTTClient, GCDAsyncSocketDelegate, Cocoa
     //delegate weak??
 
     public weak var delegate: CocoaMQTTDelegate?
+    
+    //SSL validation delegate weak??
+    
+    public weak var sslDelegate: CocoaMQTTSSLDelegate?
 
     //socket and connection
 
@@ -309,6 +321,10 @@ public class CocoaMQTT: NSObject, CocoaMQTTClient, GCDAsyncSocketDelegate, Cocoa
         #if DEBUG
             NSLog("CocoaMQTT: didReceiveTrust")
         #endif
+        if let sslDel = self.sslDelegate {
+            completionHandler(self.sslDelegate.shouldTrustServer(trust))
+            return
+        }
         completionHandler(true)
     }
     
