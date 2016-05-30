@@ -307,11 +307,12 @@ public class CocoaMQTT: NSObject, CocoaMQTTClient, GCDAsyncSocketDelegate, Cocoa
         #endif
         
         if secureMQTT {
-            #if DEBUG
-                sock.startTLS(["GCDAsyncSocketManuallyEvaluateTrust": true, kCFStreamSSLPeerName: self.host])
-            #else
+            if let _ = self.sslDelegate {
+                sock.startTLS([GCDAsyncSocketManuallyEvaluateTrust: true, kCFStreamSSLPeerName: self.host])
+            } else {
                 sock.startTLS([kCFStreamSSLPeerName: self.host])
-            #endif
+            }
+    
         } else {
             sendConnectFrame()
         }
